@@ -1,0 +1,13 @@
+# Normalize line endings to LF for all text files so CI (incl. the Windows
+# runner) sees the same bytes Prettier expects. Prevents CRLF-on-checkout from
+# making `prettier --check` flag every file on Windows.
+* text=auto eol=lf
+
+# Explicitly binary (never touch these).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

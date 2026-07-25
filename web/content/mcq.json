@@ -1,0 +1,384 @@
+{
+  "version": 1,
+  "mode": "mcq",
+  "items": [
+    {
+      "id": "py-mcq-001",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["x = [1, 2, 3]", "y = x", "y.append(4)", "print(len(x))"],
+      "options": ["3", "4", "AttributeError", "2"],
+      "answerIndex": 1,
+      "explanation": "y = x copies the reference, not the list. Appending through y grows the same object, so len(x) is 4.",
+      "tags": ["references", "lists"]
+    },
+    {
+      "id": "py-mcq-002",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["print(2 ** 3 ** 2)"],
+      "options": ["64", "512", "36", "SyntaxError"],
+      "answerIndex": 1,
+      "explanation": "** is right-associative: 2 ** (3 ** 2) = 2 ** 9 = 512.",
+      "tags": ["operators", "precedence"]
+    },
+    {
+      "id": "py-mcq-003",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["def f(a, b=[]):", "    b.append(a)", "    return b", "", "print(f(1), f(2))"],
+      "options": ["[1] [2]", "[1, 2] [1, 2]", "[1] [1, 2]", "TypeError"],
+      "answerIndex": 1,
+      "explanation": "The default list is created once and shared. Both calls return the SAME object; by print time it holds [1, 2] — shown twice.",
+      "tags": ["default-args", "mutability"]
+    },
+    {
+      "id": "py-mcq-004",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What is the time complexity of this duplicate check?",
+      "code": [
+        "seen = set()",
+        "for x in items:",
+        "    if x in seen:",
+        "        return True",
+        "    seen.add(x)",
+        "return False"
+      ],
+      "options": ["O(n)", "O(n log n)", "O(n²)", "O(1)"],
+      "answerIndex": 0,
+      "explanation": "Set membership and insertion are O(1) average, so one pass over n items is O(n).",
+      "tags": ["big-o", "sets"]
+    },
+    {
+      "id": "py-mcq-005",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "This crashes on an empty list. Which line raises?",
+      "code": ["def average(nums):", "    total = sum(nums)", "    return total / len(nums)"],
+      "options": ["Line 1", "Line 2", "Line 3", "It never crashes"],
+      "answerIndex": 2,
+      "explanation": "sum([]) is fine (0), but len(nums) is 0 — line 3 raises ZeroDivisionError.",
+      "tags": ["edge-cases", "division"]
+    },
+    {
+      "id": "py-mcq-006",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What does this print?",
+      "code": ["funcs = [lambda: i for i in range(3)]", "print([f() for f in funcs])"],
+      "options": ["[0, 1, 2]", "[2, 2, 2]", "[3, 3, 3]", "NameError"],
+      "answerIndex": 1,
+      "explanation": "Closures capture the variable, not its value. All lambdas read the final i (2). Bind early with lambda i=i: i.",
+      "tags": ["closures", "late-binding"]
+    },
+    {
+      "id": "py-mcq-007",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What happens here?",
+      "code": ["a = (1, 2, [3])", "a[2] += [4]"],
+      "options": [
+        "No error; a is (1, 2, [3, 4])",
+        "TypeError; a is unchanged",
+        "TypeError; but a is (1, 2, [3, 4]) anyway",
+        "SyntaxError"
+      ],
+      "answerIndex": 2,
+      "explanation": "+= extends the list in place, THEN the tuple assignment raises TypeError — the mutation already happened. Famous gotcha.",
+      "tags": ["tuples", "augmented-assignment"]
+    },
+    {
+      "id": "java-mcq-001",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["System.out.println(10 / 3);"],
+      "options": ["3.33", "3", "3.0", "compile error"],
+      "answerIndex": 1,
+      "explanation": "Both operands are int, so this is integer division: 3. Use 10.0 / 3 for a double.",
+      "tags": ["integer-division", "types"]
+    },
+    {
+      "id": "java-mcq-002",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["System.out.println(\"2\" + 1 + 1);"],
+      "options": ["4", "211", "22", "compile error"],
+      "answerIndex": 1,
+      "explanation": "Left to right: \"2\" + 1 => \"21\", then \"21\" + 1 => \"211\". String concatenation wins once a String appears.",
+      "tags": ["strings", "concatenation"]
+    },
+    {
+      "id": "java-mcq-003",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": [
+        "String a = \"hello\";",
+        "String b = \"hel\" + \"lo\";",
+        "System.out.println(a == b);"
+      ],
+      "options": ["true", "false", "compile error", "NullPointerException"],
+      "answerIndex": 0,
+      "explanation": "\"hel\" + \"lo\" is a compile-time constant, folded and interned to the same pool object as \"hello\" — so == is true here (still: always use equals()).",
+      "tags": ["strings", "interning"]
+    },
+    {
+      "id": "java-mcq-004",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": [
+        "Integer a = 127, b = 127;",
+        "Integer c = 128, d = 128;",
+        "System.out.println((a == b) + \" \" + (c == d));"
+      ],
+      "options": ["true true", "true false", "false false", "false true"],
+      "answerIndex": 1,
+      "explanation": "Autoboxing caches Integers in [-128, 127]: a and b share an object; c and d don't. Use equals() for wrappers.",
+      "tags": ["autoboxing", "integer-cache"]
+    },
+    {
+      "id": "java-mcq-005",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "This throws ArrayIndexOutOfBoundsException. Which line is at fault?",
+      "code": [
+        "int[] arr = {1, 2, 3};",
+        "for (int i = 0; i <= arr.length; i++) {",
+        "    System.out.println(arr[i]);",
+        "}"
+      ],
+      "options": ["Line 1", "Line 2", "Line 3", "No bug"],
+      "answerIndex": 1,
+      "explanation": "The loop condition `i <= arr.length` goes one past the end; line 3 merely executes the bad index. Use `<`.",
+      "tags": ["off-by-one", "arrays"]
+    },
+    {
+      "id": "java-mcq-006",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What happens?",
+      "code": [
+        "List<String> list = new ArrayList<>(List.of(\"a\", \"b\", \"c\"));",
+        "for (String s : list) {",
+        "    if (s.equals(\"a\")) list.remove(s);",
+        "}"
+      ],
+      "options": [
+        "list becomes [b, c]",
+        "ConcurrentModificationException",
+        "list stays [a, b, c]",
+        "compile error"
+      ],
+      "answerIndex": 1,
+      "explanation": "Structurally modifying a list during for-each fails fast on the next iterator step. (Trivia: removing the second-to-last element sneaks through — that's why this removes the first.) Use an Iterator or removeIf.",
+      "tags": ["collections", "concurrent-modification"]
+    },
+    {
+      "id": "java-mcq-007",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What does this do?",
+      "code": [
+        "String s = null;",
+        "switch (s) {",
+        "    case \"a\": System.out.println(\"a\"); break;",
+        "    default: System.out.println(\"default\");",
+        "}"
+      ],
+      "options": ["prints \"default\"", "NullPointerException", "compile error", "prints nothing"],
+      "answerIndex": 1,
+      "explanation": "switch on a String calls hashCode() on it first — a null switch operand throws NPE before any case is considered.",
+      "tags": ["switch", "null"]
+    },
+    {
+      "id": "py-mcq-008",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["print(bool(\"False\"))"],
+      "options": ["True", "False", "TypeError", "None"],
+      "answerIndex": 0,
+      "explanation": "Any non-empty string is truthy — including the string \"False\". Only \"\" is falsy.",
+      "tags": ["truthiness", "strings"]
+    },
+    {
+      "id": "py-mcq-009",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["print(3 * \"ab\")"],
+      "options": ["ababab", "abababab", "6", "TypeError"],
+      "answerIndex": 0,
+      "explanation": "str * int repeats the string: \"ab\" three times is \"ababab\".",
+      "tags": ["strings", "operators"]
+    },
+    {
+      "id": "py-mcq-010",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["print(list(range(1, 10, 3)))"],
+      "options": ["[1, 4, 7]", "[1, 4, 7, 10]", "[1, 3, 5, 7, 9]", "[3, 6, 9]"],
+      "answerIndex": 0,
+      "explanation": "range starts at 1, stops before 10, steps by 3: 1, 4, 7 (10 is excluded).",
+      "tags": ["range", "iteration"]
+    },
+    {
+      "id": "py-mcq-011",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["a = {'x': 1}", "b = a.copy()", "b['x'] = 2", "print(a['x'])"],
+      "options": ["1", "2", "KeyError", "None"],
+      "answerIndex": 0,
+      "explanation": "copy() makes a new dict, so reassigning b['x'] doesn't touch a. (Contrast with y = x, which aliases.)",
+      "tags": ["dicts", "copy"]
+    },
+    {
+      "id": "py-mcq-012",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["print(0.1 + 0.2 == 0.3)"],
+      "options": ["False", "True", "raises ValueError", "0.3"],
+      "answerIndex": 0,
+      "explanation": "Binary floating point can't represent these exactly: 0.1 + 0.2 is 0.30000000000000004, so the comparison is False.",
+      "tags": ["floats", "precision"]
+    },
+    {
+      "id": "py-mcq-013",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["print(-7 // 2)"],
+      "options": ["-4", "-3", "3", "-3.5"],
+      "answerIndex": 0,
+      "explanation": "Floor division rounds toward negative infinity, not toward zero: -7 // 2 is -4.",
+      "tags": ["floor-division", "operators"]
+    },
+    {
+      "id": "py-mcq-014",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What does this print?",
+      "code": [
+        "def gen():",
+        "    yield 1",
+        "    yield 2",
+        "",
+        "g = gen()",
+        "print(list(g), list(g))"
+      ],
+      "options": ["[1, 2] [1, 2]", "[1, 2] []", "[1] [2]", "TypeError"],
+      "answerIndex": 1,
+      "explanation": "A generator is single-use. The first list(g) drains it; the second sees an exhausted iterator, so it's empty.",
+      "tags": ["generators", "iterators"]
+    },
+    {
+      "id": "py-mcq-015",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What does this print?",
+      "code": ["x = [[]] * 3", "x[0].append(1)", "print(x)"],
+      "options": ["[[1], [], []]", "[[1], [1], [1]]", "[[1]]", "TypeError"],
+      "answerIndex": 1,
+      "explanation": "[[]] * 3 stores three references to the SAME inner list, so appending shows up in all three.",
+      "tags": ["aliasing", "lists"]
+    },
+    {
+      "id": "java-mcq-008",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["System.out.println(3 + 4 + \"5\");"],
+      "options": ["75", "345", "12", "34"],
+      "answerIndex": 0,
+      "explanation": "Left to right: 3 + 4 is int 7, then 7 + \"5\" concatenates to \"75\".",
+      "tags": ["concatenation", "evaluation-order"]
+    },
+    {
+      "id": "java-mcq-009",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["System.out.println('A' + 1);"],
+      "options": ["66", "A1", "B", "65"],
+      "answerIndex": 0,
+      "explanation": "A char promotes to its int code in arithmetic: 'A' is 65, so 'A' + 1 is 66 (an int, not a char).",
+      "tags": ["char", "promotion"]
+    },
+    {
+      "id": "java-mcq-010",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print?",
+      "code": ["System.out.println(7 % -3);"],
+      "options": ["1", "-1", "2", "-2"],
+      "answerIndex": 0,
+      "explanation": "In Java the result of % takes the sign of the dividend (left side): 7 % -3 is 1.",
+      "tags": ["modulo", "sign"]
+    },
+    {
+      "id": "java-mcq-011",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["double d = 1 / 2;", "System.out.println(d);"],
+      "options": ["0.0", "0.5", "0", "0.50"],
+      "answerIndex": 0,
+      "explanation": "1 / 2 is integer division (0), computed BEFORE the widening to double, so d is 0.0. Use 1.0 / 2.",
+      "tags": ["integer-division", "types"]
+    },
+    {
+      "id": "java-mcq-012",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["int[] a = {1, 2, 3};", "int[] b = a;", "b[0] = 9;", "System.out.println(a[0]);"],
+      "options": ["9", "1", "0", "compile error"],
+      "answerIndex": 0,
+      "explanation": "Arrays are reference types; b and a point to the same array, so writing through b is visible via a.",
+      "tags": ["arrays", "references"]
+    },
+    {
+      "id": "java-mcq-013",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print?",
+      "code": ["String s = \"hello\";", "s.toUpperCase();", "System.out.println(s);"],
+      "options": ["hello", "HELLO", "Hello", "compile error"],
+      "answerIndex": 0,
+      "explanation": "Strings are immutable. toUpperCase() returns a NEW string that is discarded; s is unchanged.",
+      "tags": ["strings", "immutability"]
+    },
+    {
+      "id": "java-mcq-014",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What does this print?",
+      "code": ["long x = 1000 * 1000 * 1000 * 10;", "System.out.println(x);"],
+      "options": ["10000000000", "1410065408", "compile error", "-1410065408"],
+      "answerIndex": 1,
+      "explanation": "The multiplications are int arithmetic and overflow BEFORE the widening to long, wrapping to 1410065408. Use 1000L to force long math.",
+      "tags": ["overflow", "types"]
+    },
+    {
+      "id": "java-mcq-015",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What does this print?",
+      "code": ["System.out.println(Integer.MAX_VALUE + 1);"],
+      "options": ["-2147483648", "2147483648", "arithmetic overflow error", "2147483647"],
+      "answerIndex": 0,
+      "explanation": "Signed int overflow wraps around: MAX_VALUE + 1 is Integer.MIN_VALUE, -2147483648.",
+      "tags": ["overflow", "integer"]
+    }
+  ]
+}

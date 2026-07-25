@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How Code While Claude Code works</title>
+    <style>
+      :root {
+        --bg: #f6f7fb;
+        --panel: #ffffff;
+        --ink: #1a1d29;
+        --muted: #616a86;
+        --line: #e2e6f0;
+        --blue: #3b82f6;
+        --blue-soft: #dbeafe;
+        --green: #10b981;
+        --green-soft: #d1fae5;
+        --amber: #f59e0b;
+        --violet: #7c6df2;
+        --red: #ef4444;
+        --shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
+        --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0e1017;
+          --panel: #171a24;
+          --ink: #e8ebf5;
+          --muted: #9aa3bd;
+          --line: #262b3a;
+          --blue-soft: #16233f;
+          --green-soft: #0f2a24;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+      }
+      :root[data-theme='dark'] {
+        --bg: #0e1017;
+        --panel: #171a24;
+        --ink: #e8ebf5;
+        --muted: #9aa3bd;
+        --line: #262b3a;
+        --blue-soft: #16233f;
+        --green-soft: #0f2a24;
+        --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+      :root[data-theme='light'] {
+        --bg: #f6f7fb;
+        --panel: #fff;
+        --ink: #1a1d29;
+        --muted: #616a86;
+        --line: #e2e6f0;
+        --blue-soft: #dbeafe;
+        --green-soft: #d1fae5;
+        --shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--sans);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 40px 20px 80px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      .kicker {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--blue);
+        font-weight: 600;
+      }
+      h1 {
+        font-size: clamp(26px, 5vw, 40px);
+        margin: 6px 0 6px;
+        letter-spacing: -0.02em;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 17px;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 22px;
+      }
+      section {
+        margin-top: 34px;
+      }
+      h2 {
+        font-size: 20px;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+      }
+      .h2note {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 18px;
+      }
+
+      /* ------- interactive stage ------- */
+      .stagebar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      button.play {
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 18px;
+        color: #fff;
+        background: var(--blue);
+        transition:
+          transform 0.08s ease,
+          background 0.2s;
+      }
+      button.play:hover {
+        transform: translateY(-1px);
+      }
+      button.play.finish {
+        background: var(--green);
+      }
+      button.play.ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--line);
+      }
+      .statepill {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+      }
+      .statepill.working {
+        color: var(--blue);
+        border-color: var(--blue);
+        background: var(--blue-soft);
+      }
+      .statepill.done {
+        color: var(--green);
+        border-color: var(--green);
+        background: var(--green-soft);
+      }
+
+      /* turn timeline */
+      .timeline {
+        position: relative;
+        height: 46px;
+        margin: 8px 0 26px;
+      }
+      .track {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 4px;
+        background: var(--line);
+      }
+      .fill {
+        position: absolute;
+        top: 22px;
+        left: 0;
+        height: 4px;
+        border-radius: 4px;
+        width: 0;
+        background: linear-gradient(90deg, var(--blue), var(--violet));
+        transition: width 0.25s linear;
+      }
+      .tmark {
+        position: absolute;
+        top: 0;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 150px;
+      }
+      .tmark .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--panel);
+        border: 3px solid var(--blue);
+        margin: 16px auto 0;
+      }
+      .tmark.end .dot {
+        border-color: var(--green);
+      }
+      .tmark small {
+        display: block;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* pipeline */
+      .pipe {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+        position: relative;
+      }
+      @media (max-width: 720px) {
+        .pipe {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .node {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px 10px;
+        text-align: center;
+        position: relative;
+        transition:
+          border-color 0.25s,
+          box-shadow 0.25s,
+          transform 0.25s;
+      }
+      .node .emoji {
+        font-size: 26px;
+        line-height: 1;
+      }
+      .node .name {
+        font-weight: 600;
+        font-size: 13.5px;
+        margin-top: 8px;
+      }
+      .node .meta {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .node.lit {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px var(--blue-soft);
+        transform: translateY(-2px);
+      }
+      .node.claude.lit {
+        border-color: var(--violet);
+        box-shadow: 0 0 0 3px rgba(124, 109, 242, 0.18);
+      }
+
+      /* flowing packet */
+      .packet {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--amber);
+        box-shadow: 0 0 12px var(--amber);
+        opacity: 0;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 5;
+      }
+      .packet.run {
+        animation: flow 1.9s linear infinite;
+      }
+      @keyframes flow {
+        0% {
+          opacity: 0;
+        }
+        6% {
+          opacity: 1;
+        }
+        94% {
+          opacity: 1;
+        }
+        100% {
+          left: 100%;
+          opacity: 0;
+        }
+      }
+
+      /* mock game preview */
+      .preview {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 720px) {
+        .preview {
+          grid-template-columns: 1fr;
+        }
+      }
+      .banner {
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .banner.working {
+        background: var(--blue-soft);
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .banner.working .pulse {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--blue);
+        animation: pulse 1.1s ease-in-out infinite;
+      }
+      .banner.done {
+        background: var(--green-soft);
+        border-color: var(--green);
+        color: var(--green);
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(0.7);
+        }
+      }
+      .drill {
+      }
+      .drill .q {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .drill pre {
+        font-family: var(--mono);
+        font-size: 13px;
+        background: rgba(127, 127, 127, 0.09);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        margin: 0 0 12px;
+        overflow-x: auto;
+      }
+      .opts {
+        display: grid;
+        gap: 8px;
+      }
+      .opt {
+        text-align: left;
+        font: inherit;
+        font-size: 13.5px;
+        padding: 9px 12px;
+        border-radius: 9px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        transition: all 0.15s;
+      }
+      .opt:hover {
+        border-color: var(--blue);
+      }
+      .opt.correct {
+        background: var(--green-soft);
+        border-color: var(--green);
+        color: var(--green);
+        font-weight: 600;
+      }
+      .opt.wrong {
+        background: #fee2e2;
+        border-color: var(--red);
+        color: var(--red);
+      }
+      @media (prefers-color-scheme: dark) {
+        .opt.wrong {
+          background: #2a1515;
+        }
+      }
+      .chrono {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 12px;
+      }
+
+      /* invariant grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+      @media (max-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .inv {
+        padding: 16px;
+      }
+      .inv .ico {
+        font-size: 20px;
+      }
+      .inv h3 {
+        font-size: 14.5px;
+        margin: 8px 0 4px;
+      }
+      .inv p {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 14px;
+      }
+      .legend b {
+        color: var(--ink);
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.9em;
+        background: rgba(127, 127, 127, 0.12);
+        padding: 1px 5px;
+        border-radius: 5px;
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 44px;
+      }
+      .themebtn {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="themebtn" id="theme">◐ theme</button>
+    <div class="wrap">
+      <header>
+        <div class="kicker">Code While Claude Code</div>
+        <h1>How it works</h1>
+        <p class="sub">
+          Claude Code's turns have dead time. CWCC catches the whole turn — from your prompt to the
+          agent's stop — and fills it with a fast coding drill. Everything runs locally. Press play
+          below.
+        </p>
+      </header>
+
+      <!-- INTERACTIVE STAGE -->
+      <section class="card">
+        <h2>The live flow</h2>
+        <p class="h2note">
+          A simulated Claude Code turn. Watch events travel from the agent to your game tab.
+        </p>
+
+        <div class="stagebar">
+          <button class="play" id="run">▶ Simulate a turn</button>
+          <button class="play finish" id="fin" style="display: none">■ Finish the turn</button>
+          <button class="play ghost" id="reset">↺ reset</button>
+          <span class="statepill" id="pill">idle — waiting for the agent</span>
+        </div>
+
+        <!-- turn timeline -->
+        <div class="timeline">
+          <div class="track"></div>
+          <div class="fill" id="fill"></div>
+          <div class="tmark" style="left: 4%">
+            <div class="dot"></div>
+            <small>UserPromptSubmit<br />(turn start)</small>
+          </div>
+          <div class="tmark" style="left: 50%">
+            <div class="dot" style="border-color: var(--amber)"></div>
+            <small>PreToolUse…<br />(heartbeats)</small>
+          </div>
+          <div class="tmark end" style="left: 96%">
+            <div class="dot"></div>
+            <small>Stop<br />(turn end)</small>
+          </div>
+        </div>
+
+        <!-- pipeline -->
+        <div class="pipe" id="pipe">
+          <div class="packet" id="packet"></div>
+          <div class="node" data-k="you">
+            <div class="emoji">🧑‍💻</div>
+            <div class="name">You</div>
+            <div class="meta">send a prompt</div>
+          </div>
+          <div class="node claude" data-k="claude">
+            <div class="emoji">🤖</div>
+            <div class="name">Claude Code</div>
+            <div class="meta">turn is busy</div>
+          </div>
+          <div class="node" data-k="hook">
+            <div class="emoji">🪝</div>
+            <div class="name">Hook</div>
+            <div class="meta">curl · ≤1s · || true</div>
+          </div>
+          <div class="node" data-k="daemon">
+            <div class="emoji">⚙️</div>
+            <div class="name">Daemon</div>
+            <div class="meta">127.0.0.1:9999</div>
+          </div>
+          <div class="node" data-k="ws">
+            <div class="emoji">🔌</div>
+            <div class="name">WebSocket</div>
+            <div class="meta">token + origin</div>
+          </div>
+          <div class="node" data-k="ui">
+            <div class="emoji">🎮</div>
+            <div class="name">Game tab</div>
+            <div class="meta">your browser</div>
+          </div>
+        </div>
+
+        <!-- mock game -->
+        <div class="preview">
+          <div>
+            <div class="banner" id="banner">
+              <span>◦</span><span id="bannertext">Waiting for the agent…</span>
+            </div>
+            <div class="chrono" id="chrono"></div>
+          </div>
+          <div class="drill card" style="padding: 16px">
+            <div class="q">What does this print?</div>
+            <pre>
+x = [1, 2, 3]
+y = x
+y.append(4)
+print(len(x))</pre>
+            <div class="opts" id="opts">
+              <button class="opt" data-i="0">3</button>
+              <button class="opt" data-i="1">4</button>
+              <button class="opt" data-i="2">AttributeError</button>
+              <button class="opt" data-i="3">2</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><b>🟡 packet</b> = one turn-lifecycle event</span>
+          <span><b>🟣 Claude Code</b> lit = turn in progress</span>
+          <span><b>🔵 nodes</b> light up as the event passes</span>
+        </div>
+      </section>
+
+      <!-- THE TURN WINDOW -->
+      <section class="card">
+        <h2>The window CWCC fills</h2>
+        <p class="h2note">
+          The key design fact: Claude Code hooks fire on the
+          <b>tool lifecycle</b>, not on model reasoning.
+        </p>
+        <p style="margin: 0; color: var(--muted); font-size: 14.5px">
+          There is no "started thinking" event. CWCC brackets the
+          <b>whole turn</b> between <code>UserPromptSubmit</code> (start) and the top-level
+          <code>Stop</code> (end). Subagent stops and agent-tagged stops are <b>ignored</b> so a
+          turn never ends early. <code>PreToolUse</code> / <code>PostToolUse</code> are just
+          heartbeats — liveness and difficulty hints. Even a pure-reasoning turn with no tools is
+          filled end to end.
+        </p>
+      </section>
+
+      <!-- SAFETY -->
+      <section>
+        <h2 style="margin-bottom: 2px">Safety by construction</h2>
+        <p class="h2note">Six invariants make CWCC safe to leave running all day.</p>
+        <div class="grid">
+          <div class="inv card">
+            <div class="ico">🚫</div>
+            <h3>Never blocks Claude Code</h3>
+            <p>
+              The hook is fire-and-forget: curl caps at 1s and
+              <code>|| true</code> means it can never fail your turn. Daemon down? The event is
+              dropped in ~20ms.
+            </p>
+          </div>
+          <div class="inv card">
+            <div class="ico">🔒</div>
+            <h3>Loopback only</h3>
+            <p>
+              Binds to <code>127.0.0.1</code>, never <code>0.0.0.0</code>. Every event and WebSocket
+              is authed with a local token and an Origin check.
+            </p>
+          </div>
+          <div class="inv card">
+            <div class="ico">📴</div>
+            <h3>Fully offline</h3>
+            <p>
+              All 50 challenges ship as JSON inside the package. No network, no LLM calls at play
+              time. Works with Wi-Fi off.
+            </p>
+          </div>
+          <div class="inv card">
+            <div class="ico">🪟</div>
+            <h3>Never steals focus</h3>
+            <p>
+              The tab updates quietly in the background and never raises itself over your terminal.
+            </p>
+          </div>
+          <div class="inv card">
+            <div class="ico">♻️</div>
+            <h3>Reversible install</h3>
+            <p>
+              <code>cwcc install</code> is merge-only, backs up your settings first, and tags its
+              own entries. <code>cwcc uninstall</code> removes only those.
+            </p>
+          </div>
+          <div class="inv card">
+            <div class="ico">🤫</div>
+            <h3>Fails silently outward</h3>
+            <p>
+              Nothing CWCC does ever surfaces an error into your Claude Code session. All errors go
+              to <code>~/.claude/cwcc/logs/</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- GET STARTED -->
+      <section class="card">
+        <h2>Three commands to start</h2>
+        <p class="h2note">
+          Needs Claude Code and Node 20+. Full guide in
+          <code>README.md</code>.
+        </p>
+        <pre
+          style="
+            font-family: var(--mono);
+            font-size: 13.5px;
+            background: rgba(127, 127, 127, 0.09);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 0;
+            overflow-x: auto;
+          "
+        >npm install -g code-while-claude-code
+cwcc install        <span style="color:var(--muted)"># merges hooks (backed up, reversible)</span>
+cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.1:9999</span></pre>
+      </section>
+
+      <footer>
+        Code While Claude Code — local · offline · open source. Diagram is self-contained; save or
+        share this file.
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        document.getElementById('theme').onclick = function () {
+          var cur = root.getAttribute('data-theme');
+          var next =
+            cur === 'dark'
+              ? 'light'
+              : cur === 'light'
+                ? 'dark'
+                : matchMedia('(prefers-color-scheme: dark)').matches
+                  ? 'light'
+                  : 'dark';
+          root.setAttribute('data-theme', next);
+        };
+
+        var nodes = {};
+        document.querySelectorAll('.node').forEach(function (n) {
+          nodes[n.dataset.k] = n;
+        });
+        var order = ['you', 'claude', 'hook', 'daemon', 'ws', 'ui'];
+        var packet = document.getElementById('packet');
+        var pill = document.getElementById('pill');
+        var banner = document.getElementById('banner');
+        var bannertext = document.getElementById('bannertext');
+        var chrono = document.getElementById('chrono');
+        var fill = document.getElementById('fill');
+        var runBtn = document.getElementById('run');
+        var finBtn = document.getElementById('fin');
+        var opts = document.getElementById('opts');
+
+        var t0 = 0,
+          tick = null,
+          litTimer = null,
+          working = false;
+
+        function fmt(ms) {
+          var s = Math.floor(ms / 1000);
+          return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+        }
+        function clearLit() {
+          order.forEach(function (k) {
+            nodes[k].classList.remove('lit');
+          });
+        }
+        function litSweep() {
+          var i = 0;
+          clearInterval(litTimer);
+          litTimer = setInterval(function () {
+            clearLit();
+            nodes[order[i % order.length]].classList.add('lit');
+            if (order[i % order.length] === 'claude') nodes.claude.classList.add('lit');
+            i++;
+          }, 320);
+        }
+
+        function start() {
+          working = true;
+          t0 = Date.now();
+          runBtn.style.display = 'none';
+          finBtn.style.display = '';
+          pill.className = 'statepill working';
+          pill.textContent = 'BUSY — turn in progress';
+          banner.className = 'banner working';
+          banner.innerHTML =
+            '<span class="pulse"></span><span id="bannertext">Claude is working… 0:00</span>';
+          nodes.claude.classList.add('lit');
+          packet.classList.add('run');
+          litSweep();
+          resetOpts();
+          var maxW = 92;
+          tick = setInterval(function () {
+            var el = Date.now() - t0;
+            var bt = document.getElementById('bannertext');
+            if (bt) bt.textContent = 'Claude is working… ' + fmt(el);
+            chrono.textContent = '⏱ time on this question ' + fmt(el);
+            fill.style.width = Math.min(maxW, 8 + el / 260) + '%';
+          }, 250);
+        }
+
+        function finish() {
+          working = false;
+          clearInterval(tick);
+          clearInterval(litTimer);
+          clearLit();
+          packet.classList.remove('run');
+          fill.style.width = '100%';
+          finBtn.style.display = 'none';
+          runBtn.style.display = '';
+          runBtn.textContent = '▶ Simulate again';
+          pill.className = 'statepill done';
+          pill.textContent = 'IDLE — turn ended (Stop)';
+          banner.className = 'banner done';
+          banner.innerHTML =
+            '<span>✓</span><span>Claude finished the task — keep playing or go back.</span>';
+        }
+
+        function resetAll() {
+          working = false;
+          clearInterval(tick);
+          clearInterval(litTimer);
+          clearLit();
+          packet.classList.remove('run');
+          fill.style.width = '0';
+          finBtn.style.display = 'none';
+          runBtn.style.display = '';
+          runBtn.textContent = '▶ Simulate a turn';
+          pill.className = 'statepill';
+          pill.textContent = 'idle — waiting for the agent';
+          banner.className = 'banner';
+          banner.innerHTML = '<span>◦</span><span>Waiting for the agent…</span>';
+          chrono.textContent = '';
+          resetOpts();
+        }
+
+        function resetOpts() {
+          opts.querySelectorAll('.opt').forEach(function (o) {
+            o.className = 'opt';
+            o.disabled = false;
+          });
+        }
+        opts.querySelectorAll('.opt').forEach(function (o) {
+          o.onclick = function () {
+            opts.querySelectorAll('.opt').forEach(function (x) {
+              x.disabled = true;
+            });
+            var i = +o.dataset.i;
+            if (i === 1) o.classList.add('correct');
+            else {
+              o.classList.add('wrong');
+              opts.querySelector('[data-i="1"]').classList.add('correct');
+            }
+          };
+        });
+
+        runBtn.onclick = start;
+        finBtn.onclick = finish;
+        document.getElementById('reset').onclick = resetAll;
+      })();
+    </script>
+  </body>
+</html>

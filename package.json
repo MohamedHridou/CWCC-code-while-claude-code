@@ -1,0 +1,71 @@
+{
+  "name": "code-while-claude-code",
+  "version": "0.1.0",
+  "description": "Fill the dead time during a Claude Code turn with short, high-signal coding micro-challenges.",
+  "keywords": [
+    "claude-code",
+    "productivity",
+    "coding-practice",
+    "developer-tools",
+    "cli"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/MohamedHridou/CWCC-code-while-claude-code#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohamedHridou/CWCC-code-while-claude-code.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MohamedHridou/CWCC-code-while-claude-code/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "cwcc": "dist/cli/index.js",
+    "cwcc-emit": "dist/emit/emit.js"
+  },
+  "files": [
+    "dist/",
+    "web/dist/",
+    "README.md",
+    "how-it-works.html",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node dist/cli/index.js start",
+    "prepublishOnly": "npm run build",
+    "build": "npm run build:daemon && npm run build:web",
+    "postbuild": "node scripts/make-bins-executable.mjs",
+    "build:daemon": "tsc -p tsconfig.json",
+    "build:web": "vite build",
+    "dev:web": "vite",
+    "dev:daemon": "tsx watch src/daemon/server.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate:content": "tsx scripts/validate-content.ts"
+  },
+  "dependencies": {
+    "sirv": "^2.0.4",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^20.14.0",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "eslint": "^8.57.0",
+    "preact": "^10.22.0",
+    "prettier": "^3.3.0",
+    "tsx": "^4.15.0",
+    "typescript": "^5.4.5",
+    "vite": "^8.1.5",
+    "vitest": "^4.1.10"
+  }
+}

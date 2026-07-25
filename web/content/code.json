@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "mode": "code",
+  "items": [
+    {
+      "id": "py-code-001",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print(len(\"hello\") + 2)"],
+      "evaluator": { "type": "exact", "expected": "7" },
+      "placeholder": "output…",
+      "explanation": "len(\"hello\") is 5; 5 + 2 = 7.",
+      "tags": ["strings", "len"]
+    },
+    {
+      "id": "py-code-002",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["nums = [3, 1, 2]", "print(sorted(nums)[-1])"],
+      "evaluator": { "type": "exact", "expected": "3" },
+      "placeholder": "output…",
+      "explanation": "sorted(nums) is [1, 2, 3]; index -1 is the last element, 3.",
+      "tags": ["sorting", "indexing"]
+    },
+    {
+      "id": "py-code-003",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "Fix the bounds: the check should accept x from 1 to 10 INCLUSIVE. Type the corrected condition only.",
+      "code": ["if x > 1 and x < 10:", "    accept(x)"],
+      "evaluator": {
+        "type": "normalized",
+        "expected": ["x >= 1 and x <= 10", "1 <= x <= 10", "x <= 10 and x >= 1", "10 >= x >= 1"]
+      },
+      "placeholder": "corrected condition…",
+      "explanation": "Inclusive bounds need >= and <=. Idiomatic Python: 1 <= x <= 10.",
+      "tags": ["comparison", "bounds"]
+    },
+    {
+      "id": "py-code-004",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["d = {'a': 1}", "print(d.get('b', d.get('a')))"],
+      "evaluator": { "type": "exact", "expected": "1" },
+      "placeholder": "output…",
+      "explanation": "'b' is missing, so get returns the default — d.get('a'), which is 1.",
+      "tags": ["dicts", "defaults"]
+    },
+    {
+      "id": "py-code-005",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["s = \"abcdef\"", "print(s[1:5:2])"],
+      "evaluator": { "type": "exact", "expected": "bd" },
+      "placeholder": "output…",
+      "explanation": "Slice from index 1 up to (not including) 5, step 2 — indices 1 and 3: 'b' and 'd'.",
+      "tags": ["slicing", "strings"]
+    },
+    {
+      "id": "java-code-001",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(\"Ja\" + \"va\".length());"],
+      "evaluator": { "type": "exact", "expected": "Ja2" },
+      "placeholder": "output…",
+      "explanation": ".length() binds to \"va\" first (2), then \"Ja\" + 2 concatenates to \"Ja2\".",
+      "tags": ["precedence", "strings"]
+    },
+    {
+      "id": "java-code-002",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["int x = 5;", "System.out.println(x++ + ++x);"],
+      "evaluator": { "type": "exact", "expected": "12" },
+      "placeholder": "output…",
+      "explanation": "x++ yields 5 (then x=6); ++x makes x=7 and yields 7. 5 + 7 = 12.",
+      "tags": ["increment", "evaluation-order"]
+    },
+    {
+      "id": "java-code-003",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(5 / 2 + 5 % 2);"],
+      "evaluator": { "type": "exact", "expected": "3" },
+      "placeholder": "output…",
+      "explanation": "Integer division 5/2 is 2; remainder 5%2 is 1; 2 + 1 = 3.",
+      "tags": ["integer-division", "modulo"]
+    },
+    {
+      "id": "java-code-004",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What does this print? Type the exact output.",
+      "code": [
+        "StringBuilder sb = new StringBuilder(\"ab\");",
+        "sb.append(\"c\").insert(0, \"x\");",
+        "System.out.println(sb.reverse());"
+      ],
+      "evaluator": { "type": "exact", "expected": "cbax" },
+      "placeholder": "output…",
+      "explanation": "\"ab\" → append \"c\" → \"abc\" → insert \"x\" at 0 → \"xabc\" → reverse → \"cbax\".",
+      "tags": ["stringbuilder", "chaining"]
+    },
+    {
+      "id": "py-code-006",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print(\", \".join([\"a\", \"b\", \"c\"]))"],
+      "evaluator": { "type": "exact", "expected": "a, b, c" },
+      "placeholder": "output…",
+      "explanation": "join glues the list items with the separator \", \": a, b, c.",
+      "tags": ["strings", "join"]
+    },
+    {
+      "id": "py-code-007",
+      "lang": "python",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print(max([3, 1, 4, 1, 5]))"],
+      "evaluator": { "type": "exact", "expected": "5" },
+      "placeholder": "output…",
+      "explanation": "max returns the largest element of the list: 5.",
+      "tags": ["builtins", "lists"]
+    },
+    {
+      "id": "py-code-008",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print(sum(range(5)))"],
+      "evaluator": { "type": "exact", "expected": "10" },
+      "placeholder": "output…",
+      "explanation": "range(5) is 0,1,2,3,4; their sum is 10.",
+      "tags": ["range", "sum"]
+    },
+    {
+      "id": "py-code-009",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print(\"Hello\".lower() + \"!\" * 2)"],
+      "evaluator": { "type": "exact", "expected": "hello!!" },
+      "placeholder": "output…",
+      "explanation": "lower() gives \"hello\"; \"!\" * 2 is \"!!\"; concatenated: hello!!.",
+      "tags": ["strings", "operators"]
+    },
+    {
+      "id": "py-code-010",
+      "lang": "python",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print([x * 2 for x in range(3)])"],
+      "evaluator": { "type": "exact", "expected": "[0, 2, 4]" },
+      "placeholder": "output…",
+      "explanation": "The comprehension doubles 0, 1, 2 → [0, 2, 4]. Note the spaces after commas in the printed list.",
+      "tags": ["comprehensions", "lists"]
+    },
+    {
+      "id": "py-code-011",
+      "lang": "python",
+      "difficulty": "hard",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["print({x: x ** 2 for x in range(3)})"],
+      "evaluator": { "type": "exact", "expected": "{0: 0, 1: 1, 2: 4}" },
+      "placeholder": "output…",
+      "explanation": "A dict comprehension maps each x to x²; dicts keep insertion order: {0: 0, 1: 1, 2: 4}.",
+      "tags": ["comprehensions", "dicts"]
+    },
+    {
+      "id": "java-code-005",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(\"abc\".charAt(1));"],
+      "evaluator": { "type": "exact", "expected": "b" },
+      "placeholder": "output…",
+      "explanation": "charAt is zero-indexed: index 1 of \"abc\" is 'b'.",
+      "tags": ["strings", "indexing"]
+    },
+    {
+      "id": "java-code-006",
+      "lang": "java",
+      "difficulty": "easy",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(Math.max(3, 7));"],
+      "evaluator": { "type": "exact", "expected": "7" },
+      "placeholder": "output…",
+      "explanation": "Math.max returns the larger argument: 7.",
+      "tags": ["math", "builtins"]
+    },
+    {
+      "id": "java-code-007",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(10 % 3 + 10 / 3);"],
+      "evaluator": { "type": "exact", "expected": "4" },
+      "placeholder": "output…",
+      "explanation": "10 % 3 is 1, 10 / 3 is integer division 3; 1 + 3 = 4.",
+      "tags": ["modulo", "integer-division"]
+    },
+    {
+      "id": "java-code-008",
+      "lang": "java",
+      "difficulty": "med",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["System.out.println(\"Hello\".substring(1, 3));"],
+      "evaluator": { "type": "exact", "expected": "el" },
+      "placeholder": "output…",
+      "explanation": "substring(1, 3) takes indices 1 and 2 (end is exclusive): \"el\".",
+      "tags": ["strings", "substring"]
+    },
+    {
+      "id": "java-code-009",
+      "lang": "java",
+      "difficulty": "hard",
+      "prompt": "What does this print? Type the exact output.",
+      "code": ["int i = 1;", "System.out.println(i++ + i++);"],
+      "evaluator": { "type": "exact", "expected": "3" },
+      "placeholder": "output…",
+      "explanation": "First i++ yields 1 (i becomes 2); second i++ yields 2 (i becomes 3); 1 + 2 = 3.",
+      "tags": ["increment", "evaluation-order"]
+    }
+  ]
+}
