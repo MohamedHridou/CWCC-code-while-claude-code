@@ -18,6 +18,7 @@
         --amber: #f59e0b;
         --violet: #7c6df2;
         --red: #ef4444;
+        --red-soft: #fee2e2;
         --shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
         --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
         --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -31,6 +32,7 @@
           --line: #262b3a;
           --blue-soft: #16233f;
           --green-soft: #0f2a24;
+          --red-soft: #2a1515;
           --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
         }
       }
@@ -42,6 +44,7 @@
         --line: #262b3a;
         --blue-soft: #16233f;
         --green-soft: #0f2a24;
+        --red-soft: #2a1515;
         --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
       }
       :root[data-theme='light'] {
@@ -52,6 +55,7 @@
         --line: #e2e6f0;
         --blue-soft: #dbeafe;
         --green-soft: #d1fae5;
+        --red-soft: #fee2e2;
         --shadow: 0 1px 2px rgba(20, 24, 40, 0.06), 0 8px 24px rgba(20, 24, 40, 0.06);
       }
 
@@ -267,7 +271,7 @@
         box-shadow: 0 0 0 3px rgba(124, 109, 242, 0.18);
       }
 
-      /* flowing packet */
+      /* flowing packet — one traversal per real lifecycle event */
       .packet {
         position: absolute;
         top: 50%;
@@ -283,16 +287,17 @@
         z-index: 5;
       }
       .packet.run {
-        animation: flow 1.9s linear infinite;
+        animation: flow 1.5s linear 1 forwards;
       }
       @keyframes flow {
         0% {
+          left: 0;
           opacity: 0;
         }
-        6% {
+        8% {
           opacity: 1;
         }
-        94% {
+        92% {
           opacity: 1;
         }
         100% {
@@ -301,28 +306,188 @@
         }
       }
 
-      /* mock game preview */
-      .preview {
-        margin-top: 20px;
+      /* ------- the simulation: terminal + game tab ------- */
+      .sim {
+        margin-top: 22px;
         display: grid;
-        grid-template-columns: 1.1fr 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 16px;
+        align-items: start;
       }
-      @media (max-width: 720px) {
-        .preview {
+      @media (max-width: 860px) {
+        .sim {
           grid-template-columns: 1fr;
         }
       }
-      .banner {
+      .win {
+        border: 1px solid var(--line);
         border-radius: 12px;
-        padding: 12px 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        background: var(--panel);
+      }
+      .winbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(127, 127, 127, 0.06);
+      }
+      .tl {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex: none;
+      }
+      .tl.r {
+        background: #ff5f57;
+      }
+      .tl.y {
+        background: #febc2e;
+      }
+      .tl.g {
+        background: #28c840;
+      }
+      .wintitle {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-left: 6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .urlpill {
+        flex: 1;
+        margin-left: 6px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: var(--muted);
+        background: var(--bg);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 3px 10px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      /* terminal */
+      .term {
+        background: #0c0f17;
+        color: #d7dcea;
+        font-family: var(--mono);
+        font-size: 12.2px;
+        line-height: 1.75;
+        padding: 12px 14px;
+        height: 330px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+      }
+      .term .ln {
+        white-space: pre-wrap;
+        word-break: break-word;
+        animation: fadein 0.22s ease both;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+          transform: translateY(3px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .term .prompt {
+        color: #5eead4;
+      }
+      .term .user {
+        color: #e8ebf5;
+      }
+      .term .sys {
+        color: #a78bfa;
+      }
+      .term .think {
+        color: #8b93ad;
+        font-style: italic;
+      }
+      .term .tool {
+        color: #7cc4ff;
+      }
+      .term .dim {
+        color: #737d99;
+      }
+      .term .ok {
+        color: #4ade80;
+      }
+      .term .done {
+        color: #4ade80;
+        font-weight: 600;
+      }
+      .caret {
+        display: inline-block;
+        width: 7px;
+        height: 14px;
+        background: #5eead4;
+        vertical-align: -2px;
+        animation: blink 1s steps(2) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      .spin {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* game tab */
+      .tabbody {
+        position: relative;
+        padding: 14px;
+        min-height: 330px;
+      }
+      .veil {
+        position: absolute;
+        inset: 0;
+        background: var(--panel);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+        padding: 20px;
+        color: var(--muted);
+        font-size: 13.5px;
+        z-index: 4;
+        transition: opacity 0.35s ease;
+      }
+      .veil.hide {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .veil .big {
+        font-size: 26px;
+      }
+      .banner {
+        border-radius: 10px;
+        padding: 9px 13px;
         font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 9px;
         border: 1px solid var(--line);
         color: var(--muted);
-        font-size: 14px;
+        font-size: 13.5px;
       }
       .banner.working {
         background: var(--blue-soft);
@@ -330,11 +495,12 @@
         color: var(--blue);
       }
       .banner.working .pulse {
-        width: 10px;
-        height: 10px;
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
         background: var(--blue);
         animation: pulse 1.1s ease-in-out infinite;
+        flex: none;
       }
       .banner.done {
         background: var(--green-soft);
@@ -352,41 +518,90 @@
           transform: scale(0.7);
         }
       }
-      .drill {
+      .statrow {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin: 11px 0 12px;
       }
-      .drill .q {
-        font-size: 14px;
+      .chip {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
         color: var(--muted);
-        margin-bottom: 8px;
+        white-space: nowrap;
+      }
+      .chip.on {
+        border-color: var(--violet);
+        color: var(--violet);
+        background: rgba(124, 109, 242, 0.1);
+        font-weight: 600;
+      }
+      .chip.streak {
+        border-color: var(--amber);
+        color: var(--amber);
+      }
+      .qmeta {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 5px;
+      }
+      .qtext {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 9px;
       }
       .drill pre {
         font-family: var(--mono);
-        font-size: 13px;
+        font-size: 12.2px;
+        line-height: 1.6;
         background: rgba(127, 127, 127, 0.09);
         border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 12px;
-        margin: 0 0 12px;
+        border-radius: 9px;
+        padding: 11px 12px;
+        margin: 0 0 11px;
         overflow-x: auto;
       }
       .opts {
         display: grid;
-        gap: 8px;
+        gap: 7px;
       }
       .opt {
         text-align: left;
         font: inherit;
-        font-size: 13.5px;
-        padding: 9px 12px;
+        font-size: 13px;
+        padding: 8px 11px;
         border-radius: 9px;
         cursor: pointer;
         border: 1px solid var(--line);
         background: var(--panel);
         color: var(--ink);
         transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 9px;
       }
-      .opt:hover {
+      .opt:hover:not(:disabled) {
         border-color: var(--blue);
+        transform: translateX(2px);
+      }
+      .opt:disabled {
+        cursor: default;
+      }
+      .opt .k {
+        font-family: var(--mono);
+        font-size: 10px;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        padding: 0 5px;
+        color: var(--muted);
+        flex: none;
       }
       .opt.correct {
         background: var(--green-soft);
@@ -395,20 +610,89 @@
         font-weight: 600;
       }
       .opt.wrong {
-        background: #fee2e2;
+        background: var(--red-soft);
         border-color: var(--red);
         color: var(--red);
       }
-      @media (prefers-color-scheme: dark) {
-        .opt.wrong {
-          background: #2a1515;
-        }
+      .explain {
+        margin-top: 11px;
+        font-size: 12.8px;
+        color: var(--muted);
+        border-left: 3px solid var(--line);
+        padding: 2px 0 2px 11px;
+        animation: fadein 0.25s ease both;
+      }
+      .explain b {
+        color: var(--ink);
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button.mini {
+        font: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 8px;
+        padding: 7px 13px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink);
+        transition: all 0.15s;
+      }
+      button.mini:hover {
+        border-color: var(--blue);
+      }
+      button.mini.primary {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: #fff;
+      }
+      button.mini.go {
+        background: var(--green);
+        border-color: var(--green);
+        color: #fff;
       }
       .chrono {
         font-family: var(--mono);
-        font-size: 12px;
+        font-size: 11.5px;
         color: var(--muted);
+        margin-left: auto;
+      }
+      .recent {
+        display: flex;
+        align-items: center;
+        gap: 5px;
         margin-top: 12px;
+        border-top: 1px solid var(--line);
+        padding-top: 10px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--muted);
+      }
+      .rdot {
+        width: 16px;
+        height: 16px;
+        border-radius: 5px;
+        display: grid;
+        place-items: center;
+        font-size: 10px;
+        border: 1px solid var(--line);
+        animation: fadein 0.25s ease both;
+      }
+      .rdot.y {
+        background: var(--green-soft);
+        border-color: var(--green);
+        color: var(--green);
+      }
+      .rdot.n {
+        background: var(--red-soft);
+        border-color: var(--red);
+        color: var(--red);
       }
 
       /* invariant grid */
@@ -444,7 +728,7 @@
         flex-wrap: wrap;
         color: var(--muted);
         font-size: 13px;
-        margin-top: 14px;
+        margin-top: 16px;
       }
       .legend b {
         color: var(--ink);
@@ -474,6 +758,14 @@
         color: var(--muted);
         border-radius: 999px;
         padding: 6px 12px;
+        z-index: 20;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
       }
     </style>
   </head>
@@ -494,12 +786,13 @@
       <section class="card">
         <h2>The live flow</h2>
         <p class="h2note">
-          A simulated Claude Code turn. Watch events travel from the agent to your game tab.
+          A simulated Claude Code turn, side by side with the game tab it drives. Watch events
+          travel from the agent to your browser — then actually play along.
         </p>
 
         <div class="stagebar">
           <button class="play" id="run">▶ Simulate a turn</button>
-          <button class="play finish" id="fin" style="display: none">■ Finish the turn</button>
+          <button class="play finish" id="fin" style="display: none">■ End the turn early</button>
           <button class="play ghost" id="reset">↺ reset</button>
           <span class="statepill" id="pill">idle — waiting for the agent</span>
         </div>
@@ -557,26 +850,62 @@
           </div>
         </div>
 
-        <!-- mock game -->
-        <div class="preview">
-          <div>
-            <div class="banner" id="banner">
-              <span>◦</span><span id="bannertext">Waiting for the agent…</span>
+        <!-- the two windows -->
+        <div class="sim">
+          <!-- terminal -->
+          <div class="win">
+            <div class="winbar">
+              <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+              <span class="wintitle">claude code — ~/projects/api-server</span>
             </div>
-            <div class="chrono" id="chrono"></div>
+            <div class="term" id="term">
+              <div class="ln"><span class="prompt">❯</span> claude</div>
+              <div class="ln dim">Claude Code v2 · /help for help</div>
+              <div class="ln">&nbsp;</div>
+              <div class="ln" id="cursorline">
+                <span class="prompt">❯</span> <span class="caret"></span>
+              </div>
+            </div>
           </div>
-          <div class="drill card" style="padding: 16px">
-            <div class="q">What does this print?</div>
-            <pre>
-x = [1, 2, 3]
-y = x
-y.append(4)
-print(len(x))</pre>
-            <div class="opts" id="opts">
-              <button class="opt" data-i="0">3</button>
-              <button class="opt" data-i="1">4</button>
-              <button class="opt" data-i="2">AttributeError</button>
-              <button class="opt" data-i="3">2</button>
+
+          <!-- game tab -->
+          <div class="win">
+            <div class="winbar">
+              <span class="tl r"></span><span class="tl y"></span><span class="tl g"></span>
+              <span class="urlpill">🔒 127.0.0.1:9999</span>
+            </div>
+            <div class="tabbody">
+              <div class="veil" id="veil">
+                <div class="big">🎮</div>
+                <div><b>Your game tab is open and idle.</b></div>
+                <div>It wakes up the moment a Claude Code turn starts.</div>
+              </div>
+
+              <div class="banner" id="banner">
+                <span>◦</span><span id="bannertext">Waiting for the agent…</span>
+              </div>
+
+              <div class="statrow">
+                <span class="chip on">🐍 Python</span>
+                <span class="chip">☕ Java</span>
+                <span class="chip streak" id="streakchip">🔥 streak 0</span>
+                <span class="chip" id="solvedchip">solved 0</span>
+              </div>
+
+              <div class="drill" id="drill">
+                <div class="qmeta" id="qmeta">python · complexity · med</div>
+                <div class="qtext" id="qtext">
+                  What is the time complexity of <code>dedupe</code>?
+                </div>
+                <pre id="qcode"></pre>
+                <div class="opts" id="opts"></div>
+                <div id="explainslot"></div>
+                <div class="actions" id="actions">
+                  <span class="chrono" id="chrono"></span>
+                </div>
+              </div>
+
+              <div class="recent" id="recent"><span>recent</span></div>
             </div>
           </div>
         </div>
@@ -584,7 +913,7 @@ print(len(x))</pre>
         <div class="legend">
           <span><b>🟡 packet</b> = one turn-lifecycle event</span>
           <span><b>🟣 Claude Code</b> lit = turn in progress</span>
-          <span><b>🔵 nodes</b> light up as the event passes</span>
+          <span><b>⌨️ keys</b> 1–4 answer · Enter for next</span>
         </div>
       </section>
 
@@ -664,10 +993,7 @@ print(len(x))</pre>
       <!-- GET STARTED -->
       <section class="card">
         <h2>Three commands to start</h2>
-        <p class="h2note">
-          Needs Claude Code and Node 20+. Full guide in
-          <code>README.md</code>.
-        </p>
+        <p class="h2note">Needs Claude Code and Node 20+. Full guide in <code>README.md</code>.</p>
         <pre
           style="
             font-family: var(--mono);
@@ -680,8 +1006,8 @@ print(len(x))</pre>
             overflow-x: auto;
           "
         >npm install -g code-while-claude-code
-cwcc install        <span style="color:var(--muted)"># merges hooks (backed up, reversible)</span>
-cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.1:9999</span></pre>
+cwcc install        <span style="color: var(--muted)"># merges hooks (backed up, reversible)</span>
+cwcc start          <span style="color: var(--muted)"># then open http://127.0.0.1:9999</span></pre>
       </section>
 
       <footer>
@@ -706,6 +1032,111 @@ cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.
           root.setAttribute('data-theme', next);
         };
 
+        // ---------------------------------------------------------------
+        // Challenge bank — the same shape as web/content/*.json ships.
+        // ---------------------------------------------------------------
+        var BANK = [
+          {
+            lang: 'python',
+            kind: 'complexity',
+            diff: 'med',
+            q: 'What is the time complexity of <code>dedupe</code>?',
+            code: 'def dedupe(items):\n    seen = []\n    for x in items:\n        if x not in seen:\n            seen.append(x)\n    return seen',
+            opts: ['O(n)', 'O(n log n)', 'O(n²)', 'O(1)'],
+            a: 2,
+            why: '<b>O(n²).</b> <code>x not in seen</code> scans the list linearly, and it runs once per item — a linear test inside a linear loop. Swap <code>seen = []</code> for <code>seen = set()</code> and it drops to O(n).',
+          },
+          {
+            lang: 'python',
+            kind: 'complexity',
+            diff: 'easy',
+            q: 'How many times does the loop body run, in Big-O?',
+            code: 'i = len(a)\nwhile i > 1:\n    i //= 2\n    step(i)',
+            opts: ['O(n)', 'O(log n)', 'O(n log n)', 'O(√n)'],
+            a: 1,
+            why: '<b>O(log n).</b> Halving <code>i</code> each pass means the loop runs about log₂(n) times — the classic binary-search shape.',
+          },
+          {
+            lang: 'python',
+            kind: 'output',
+            diff: 'easy',
+            q: 'What does this print?',
+            code: 'x = [1, 2, 3]\ny = x\ny.append(4)\nprint(len(x))',
+            opts: ['3', '4', 'AttributeError', '2'],
+            a: 1,
+            why: '<b>4.</b> <code>y = x</code> copies the reference, not the list. Appending through <code>y</code> grows the same object, so <code>len(x)</code> is 4.',
+          },
+          {
+            lang: 'python',
+            kind: 'complexity',
+            diff: 'med',
+            q: 'What is the time complexity of <code>top_k</code>?',
+            code: 'def top_k(nums, k):\n    return sorted(nums)[-k:]',
+            opts: ['O(k)', 'O(n)', 'O(n log n)', 'O(n log k)'],
+            a: 2,
+            why: '<b>O(n log n)</b> — the sort dominates; the slice is O(k). Using <code>heapq.nlargest(k, nums)</code> instead gets you O(n log k), which wins when k ≪ n.',
+          },
+          {
+            lang: 'java',
+            kind: 'output',
+            diff: 'hard',
+            q: 'What does this print?',
+            code: 'Integer a = 127, b = 127;\nInteger c = 128, d = 128;\nSystem.out.println((a == b) + " " + (c == d));',
+            opts: ['true true', 'true false', 'false false', 'false true'],
+            a: 1,
+            why: '<b>true false.</b> Java caches boxed Integers from −128 to 127, so <code>a</code> and <code>b</code> are the same object. 128 falls outside the cache — two distinct objects, and <code>==</code> compares references.',
+          },
+          {
+            lang: 'java',
+            kind: 'complexity',
+            diff: 'easy',
+            q: 'What is the time complexity of this nested loop?',
+            code: 'for (int i = 0; i < n; i++)\n    for (int j = i; j < n; j++)\n        sum += a[i] * a[j];',
+            opts: ['O(n)', 'O(n log n)', 'O(n²)', 'O(n³)'],
+            a: 2,
+            why: '<b>O(n²).</b> The inner loop shrinks each pass, giving n + (n−1) + … + 1 = n(n+1)/2 iterations. Constant factors drop out, so it is still quadratic.',
+          },
+          {
+            lang: 'python',
+            kind: 'output',
+            diff: 'med',
+            q: 'What does this print?',
+            code: 'def add(item, bag=[]):\n    bag.append(item)\n    return bag\n\nadd(1)\nprint(add(2))',
+            opts: ['[2]', '[1, 2]', '[1]', 'TypeError'],
+            a: 1,
+            why: '<b>[1, 2].</b> The default list is created once, when the function is defined — not per call. Every call without <code>bag</code> mutates that same list. Use <code>bag=None</code> and build inside.',
+          },
+        ];
+
+        // ---------------------------------------------------------------
+        // Terminal script — each entry with `ev` fires a real hook event.
+        // ---------------------------------------------------------------
+        var SCRIPT = [
+          {
+            t: 0,
+            cls: 'user',
+            text: '❯ refactor the auth module onto the new session store, with tests',
+            ev: 'UserPromptSubmit',
+          },
+          { t: 1100, cls: 'sys', text: '● Working…' },
+          { t: 2100, cls: 'tool', text: '⏺ Read(src/auth/session.ts)', ev: 'PreToolUse' },
+          { t: 3600, cls: 'dim', text: '  ⎿ read 214 lines' },
+          { t: 4900, cls: 'tool', text: '⏺ Grep(pattern: "validateToken")', ev: 'PreToolUse' },
+          { t: 6200, cls: 'dim', text: '  ⎿ 7 matches across 4 files' },
+          {
+            t: 7600,
+            cls: 'think',
+            text: '✻ Thinking… mapping the old token flow onto SessionStore',
+          },
+          { t: 10400, cls: 'tool', text: '⏺ Edit(src/auth/session.ts)', ev: 'PreToolUse' },
+          { t: 11900, cls: 'dim', text: '  ⎿ +38 −12' },
+          { t: 13300, cls: 'tool', text: '⏺ Write(test/auth/session.test.ts)', ev: 'PreToolUse' },
+          { t: 14700, cls: 'dim', text: '  ⎿ created · 9 cases' },
+          { t: 16100, cls: 'tool', text: '⏺ Bash(npm test)', ev: 'PreToolUse' },
+          { t: 19000, cls: 'ok', text: '  ⎿ 73 passed (73)' },
+          { t: 20600, cls: 'done', text: '✓ Done — 2 files changed, 9 tests added', ev: 'Stop' },
+        ];
+
         var nodes = {};
         document.querySelectorAll('.node').forEach(function (n) {
           nodes[n.dataset.k] = n;
@@ -714,66 +1145,186 @@ cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.
         var packet = document.getElementById('packet');
         var pill = document.getElementById('pill');
         var banner = document.getElementById('banner');
-        var bannertext = document.getElementById('bannertext');
         var chrono = document.getElementById('chrono');
         var fill = document.getElementById('fill');
         var runBtn = document.getElementById('run');
         var finBtn = document.getElementById('fin');
-        var opts = document.getElementById('opts');
+        var term = document.getElementById('term');
+        var cursorline = document.getElementById('cursorline');
+        var veil = document.getElementById('veil');
+        var optsEl = document.getElementById('opts');
+        var qmeta = document.getElementById('qmeta');
+        var qtext = document.getElementById('qtext');
+        var qcode = document.getElementById('qcode');
+        var explainslot = document.getElementById('explainslot');
+        var actions = document.getElementById('actions');
+        var recent = document.getElementById('recent');
+        var streakchip = document.getElementById('streakchip');
+        var solvedchip = document.getElementById('solvedchip');
 
         var t0 = 0,
           tick = null,
-          litTimer = null,
-          working = false;
+          timers = [],
+          working = false,
+          qIndex = 0,
+          answered = false,
+          streak = 0,
+          solved = 0,
+          qStart = 0;
 
         function fmt(ms) {
           var s = Math.floor(ms / 1000);
           return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+        }
+        function clearTimers() {
+          timers.forEach(clearTimeout);
+          timers = [];
+        }
+        function after(ms, fn) {
+          timers.push(setTimeout(fn, ms));
         }
         function clearLit() {
           order.forEach(function (k) {
             nodes[k].classList.remove('lit');
           });
         }
-        function litSweep() {
-          var i = 0;
-          clearInterval(litTimer);
-          litTimer = setInterval(function () {
-            clearLit();
-            nodes[order[i % order.length]].classList.add('lit');
-            if (order[i % order.length] === 'claude') nodes.claude.classList.add('lit');
-            i++;
-          }, 320);
+
+        /** One packet traversal + a node chain lighting up = one lifecycle event. */
+        function fireEvent() {
+          packet.classList.remove('run');
+          void packet.offsetWidth; // restart the animation
+          packet.classList.add('run');
+          var chain = ['hook', 'daemon', 'ws', 'ui'];
+          chain.forEach(function (k, i) {
+            after(180 + i * 300, function () {
+              nodes[k].classList.add('lit');
+              after(420, function () {
+                nodes[k].classList.remove('lit');
+              });
+            });
+          });
         }
 
+        function termLine(cls, text) {
+          var d = document.createElement('div');
+          d.className = 'ln ' + cls;
+          d.textContent = text;
+          term.insertBefore(d, cursorline);
+          term.scrollTop = term.scrollHeight;
+          return d;
+        }
+
+        // ---- game tab -------------------------------------------------
+        function renderQuestion() {
+          var q = BANK[qIndex % BANK.length];
+          answered = false;
+          qStart = Date.now();
+          qmeta.textContent = q.lang + ' · ' + q.kind + ' · ' + q.diff;
+          qtext.innerHTML = q.q;
+          qcode.textContent = q.code;
+          explainslot.innerHTML = '';
+          optsEl.innerHTML = '';
+          q.opts.forEach(function (label, i) {
+            var b = document.createElement('button');
+            b.className = 'opt';
+            b.innerHTML = '<span class="k">' + (i + 1) + '</span><span></span>';
+            b.lastChild.textContent = label;
+            b.onclick = function () {
+              answer(i);
+            };
+            optsEl.appendChild(b);
+          });
+          actions.innerHTML = '<span class="chrono" id="chrono"></span>';
+          chrono = document.getElementById('chrono');
+        }
+
+        function answer(i) {
+          if (answered) return;
+          answered = true;
+          var q = BANK[qIndex % BANK.length];
+          var right = i === q.a;
+          var btns = optsEl.querySelectorAll('.opt');
+          btns.forEach(function (b) {
+            b.disabled = true;
+          });
+          btns[i].classList.add(right ? 'correct' : 'wrong');
+          if (!right) btns[q.a].classList.add('correct');
+
+          streak = right ? streak + 1 : 0;
+          if (right) solved++;
+          streakchip.textContent = '🔥 streak ' + streak;
+          solvedchip.textContent = 'solved ' + solved;
+
+          var dot = document.createElement('span');
+          dot.className = 'rdot ' + (right ? 'y' : 'n');
+          dot.textContent = right ? '✓' : '✗';
+          recent.appendChild(dot);
+          while (recent.querySelectorAll('.rdot').length > 8)
+            recent.removeChild(recent.querySelectorAll('.rdot')[0]);
+
+          var e = document.createElement('div');
+          e.className = 'explain';
+          e.innerHTML = q.why;
+          explainslot.appendChild(e);
+
+          var took = fmt(Date.now() - qStart);
+          actions.innerHTML = '';
+          var next = document.createElement('button');
+          next.className = 'mini primary';
+          next.textContent = 'Next →';
+          next.onclick = nextQuestion;
+          actions.appendChild(next);
+          var c = document.createElement('span');
+          c.className = 'chrono';
+          c.textContent = (right ? '✓ correct' : '✗ missed') + ' · answered in ' + took;
+          actions.appendChild(c);
+          chrono = c;
+        }
+
+        function nextQuestion() {
+          qIndex++;
+          renderQuestion();
+        }
+
+        // ---- turn lifecycle -------------------------------------------
         function start() {
+          resetAll(true);
           working = true;
           t0 = Date.now();
           runBtn.style.display = 'none';
           finBtn.style.display = '';
           pill.className = 'statepill working';
           pill.textContent = 'BUSY — turn in progress';
+          nodes.claude.classList.add('lit');
+          veil.classList.add('hide');
           banner.className = 'banner working';
           banner.innerHTML =
             '<span class="pulse"></span><span id="bannertext">Claude is working… 0:00</span>';
-          nodes.claude.classList.add('lit');
-          packet.classList.add('run');
-          litSweep();
-          resetOpts();
-          var maxW = 92;
+          renderQuestion();
+
+          SCRIPT.forEach(function (s) {
+            after(s.t, function () {
+              termLine(s.cls, s.text);
+              if (s.ev) fireEvent();
+              if (s.ev === 'Stop') after(700, finish);
+            });
+          });
+
           tick = setInterval(function () {
             var el = Date.now() - t0;
             var bt = document.getElementById('bannertext');
             if (bt) bt.textContent = 'Claude is working… ' + fmt(el);
-            chrono.textContent = '⏱ time on this question ' + fmt(el);
-            fill.style.width = Math.min(maxW, 8 + el / 260) + '%';
+            if (!answered && chrono)
+              chrono.textContent = '⏱ ' + fmt(Date.now() - qStart) + ' on this one';
+            fill.style.width = Math.min(92, 8 + el / 240) + '%';
           }, 250);
         }
 
         function finish() {
+          if (!working) return;
           working = false;
           clearInterval(tick);
-          clearInterval(litTimer);
+          clearTimers();
           clearLit();
           packet.classList.remove('run');
           fill.style.width = '100%';
@@ -783,14 +1334,35 @@ cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.
           pill.className = 'statepill done';
           pill.textContent = 'IDLE — turn ended (Stop)';
           banner.className = 'banner done';
-          banner.innerHTML =
-            '<span>✓</span><span>Claude finished the task — keep playing or go back.</span>';
+          banner.innerHTML = '<span>✓</span><span>Claude finished the task.</span>';
+
+          // The real app never yanks a question — it offers the choice.
+          if (!answered) return;
+          actions.innerHTML = '';
+          var keep = document.createElement('button');
+          keep.className = 'mini go';
+          keep.textContent = '▶ Keep playing';
+          keep.onclick = function () {
+            nextQuestion();
+          };
+          var back = document.createElement('button');
+          back.className = 'mini';
+          back.textContent = '← Back to Claude Code';
+          back.onclick = function () {
+            actions.innerHTML = '';
+            var s = document.createElement('span');
+            s.className = 'chrono';
+            s.textContent = 'see you next turn 👋';
+            actions.appendChild(s);
+          };
+          actions.appendChild(keep);
+          actions.appendChild(back);
         }
 
-        function resetAll() {
+        function resetAll(keepScore) {
           working = false;
           clearInterval(tick);
-          clearInterval(litTimer);
+          clearTimers();
           clearLit();
           packet.classList.remove('run');
           fill.style.width = '0';
@@ -801,33 +1373,43 @@ cwcc start          <span style="color:var(--muted)"># then open http://127.0.0.
           pill.textContent = 'idle — waiting for the agent';
           banner.className = 'banner';
           banner.innerHTML = '<span>◦</span><span>Waiting for the agent…</span>';
-          chrono.textContent = '';
-          resetOpts();
+          term.querySelectorAll('.ln').forEach(function (l, i) {
+            if (i > 2 && l !== cursorline) l.remove();
+          });
+          if (keepScore !== true) {
+            veil.classList.remove('hide');
+            qIndex = 0;
+            streak = 0;
+            solved = 0;
+            streakchip.textContent = '🔥 streak 0';
+            solvedchip.textContent = 'solved 0';
+            recent.querySelectorAll('.rdot').forEach(function (d) {
+              d.remove();
+            });
+            renderQuestion();
+            actions.innerHTML = '<span class="chrono"></span>';
+          }
         }
 
-        function resetOpts() {
-          opts.querySelectorAll('.opt').forEach(function (o) {
-            o.className = 'opt';
-            o.disabled = false;
-          });
-        }
-        opts.querySelectorAll('.opt').forEach(function (o) {
-          o.onclick = function () {
-            opts.querySelectorAll('.opt').forEach(function (x) {
-              x.disabled = true;
-            });
-            var i = +o.dataset.i;
-            if (i === 1) o.classList.add('correct');
-            else {
-              o.classList.add('wrong');
-              opts.querySelector('[data-i="1"]').classList.add('correct');
-            }
-          };
+        // keyboard: 1–4 answer, Enter for next
+        document.addEventListener('keydown', function (e) {
+          if (veil.classList.contains('hide') === false) return;
+          if (e.key >= '1' && e.key <= '9') {
+            var i = Number(e.key) - 1;
+            var btns = optsEl.querySelectorAll('.opt');
+            if (i < btns.length && !answered) answer(i);
+          } else if (e.key === 'Enter' && answered) {
+            nextQuestion();
+          }
         });
 
         runBtn.onclick = start;
         finBtn.onclick = finish;
-        document.getElementById('reset').onclick = resetAll;
+        document.getElementById('reset').onclick = function () {
+          resetAll(false);
+        };
+
+        renderQuestion();
       })();
     </script>
   </body>
