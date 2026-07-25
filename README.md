@@ -8,12 +8,24 @@ browser tab — predict the output, spot the bug, pick the right complexity — 
 turn ends. It runs entirely on `127.0.0.1`, makes **no network calls at runtime**, and never interferes with
 your terminal.
 
-<p align="center"><em>👉 Open <code>how-it-works.html</code> in any browser for an animated walkthrough.</em></p>
+<p align="center"><em>👉 Open <code>how-it-works.html</code> in any browser for the interactive walkthrough — you can play the drills in it.</em></p>
+
+---
+
+## The live flow
+
+One Claude Code turn, end to end: your prompt starts it, every tool call fires a fire-and-forget hook into
+the local daemon, and the game tab fills the wait — including the reasoning gaps where no tool runs at all.
+
+<p align="center">
+  <img src="docs/live-flow.svg" alt="Animated diagram of a Claude Code turn: the prompt starts the turn, hooks push lifecycle events through the local daemon and a WebSocket into the CWCC game tab, which serves a Big-O drill while the agent works and turns green when it finishes." width="900" />
+</p>
 
 ---
 
 ## Contents
 
+- [The live flow](#the-live-flow)
 - [Requirements](#requirements)
 - [Install](#install)
 - [Play](#play)
